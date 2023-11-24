@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@600&family=Inter:wght@300&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="reset.css">
+    <link rel="stylesheet" href="style.css"/>
+
+    <title>Senhas Online</title>
+</head>
+<body>
+    <main>
+      <section class="hero">
+        <h1 class="Title">Gerador de senha</h1>
+    <p class="subtitle">Utilize o nosso gerador online para criar
+    uma senha forte e segura.</p>
+    </section>
+
+    <section class="box">
+      <div class="password">
+        <div class="text">
+          <input type="text" name="Password" id="password">
+        </div>
+        <div class="actions">
+          <button id="copy-1">
+            <img src="copy.svg" width="30">
+          </button>
+          <button id="renew">
+            <img src="renew.svg" width="30">
+          </button>
+        </div>
+      </div> 
+      <div class="security-indicator">
+       <div id="security-indicator-bar" class="bar"></div>
+      </div>
+    </section>
+
+    <section class="box customize">
+      <h3 class="title">Personalizar</h3>
+      <div class="actions">
+        <div class="password-lenght">
+        <p>Tamanho: <span id="password-lenght-text">16</span></p>
+
+        <input type="range"
+          name="password-lenght"
+           id="password-lenght"
+           class="slider"
+           value="16"
+           min="4"
+           max="64"/> 
+      </div>
+      <div class="config">
+        <label class="checkbox-container">
+          <span class="text">Maiúsculas</span>
+          <input type="checkbox" id="uppercase-check" checked/>
+          <span class="checkmark"></span>
+        </label>
+
+        <label class="checkbox-container">
+          <span class="text">Números</span>
+          <input type="checkbox" id="number-check" checked/>
+          <span class="checkmark"></span>
+        </label>
+
+        <label class="checkbox-container">
+          <span class="text">Símbolos</span>
+          <input type="checkbox" id="symbol-check" checked/>
+          <span class="checkmark"></span>
+        </label>
+      </div>
+    </div>
+    </section>
+
+      <div class="submit">
+        <button id="copy-2">Copiar senha</button>
+      </div>
+    </main>
+
+      <script>
+        const inputEl = document.querySelector("#password")
+        /*Essa variavel foi colocada aqui para que não fique presa dentro de um escopo
+        e possa ser usada de forma global na programação.*/
+
+        const upperCaseCheckEl = document.querySelector("#uppercase-check")
+        const numberCheckEl = document.querySelector("#number-check")
+        const symbolCheckEl = document.querySelector("#symbol-check")
+        const securityIndicatorBarEl = document.querySelector("#security-indicator-bar")
+
+        let passwordLenght = 16
+        /*acima, foi definida a variavel que trava a quantidade de senha que
+        aparece quando carrega e recarregada a página.*/
+
+        //Função que faz com que a senha seja gerada para copiar.
+        function generatePassword() {
+            let chars = "abcdefghjkmnpqrstuvwxyz"
+            //CHAR = caracteres, é a base do gerador de senha, onde pode puxar simbolos, números-
+            //- letras maiusculas e minusculas para fazer a geração de senha.
+
+            const upperCaseChars = "ABCDEFGHJKLMNPQRSTUVWXYZ"
+            const numberChars = "123456789"
+            const symbolChars = "?!@&*()[]"
+
+            if(upperCaseCheckEl.checked){
+              chars += upperCaseChars
+            }
+             
+            if(numberCheckEl.checked){
+              chars += numberChars
+            }
+
+            if(symbolCheckEl.checked){
+              chars += symbolChars
+            }
+            
+
+            let password = ""
+            //Aqui é onde definimos a variavel senha que quando chamada, é responsável por gerar uma senha.
+
+            for (let i = 0; i < passwordLenght; i++) {
+              /*Password está ai para que quando o slice seja deslizado,
+              mude também a quantidade de caracteres gerados em tela, com
+              o máximo de 64 char e minimo de 4 chars.*/ 
+
+              const randomNumber = Math.floor(Math.random() * chars.length)
+              //nessa variavel, foi definido ao arredondamento numérico (math.floor)
+              //entre a multiplicação entre math.random e chars.lenght
+
+              password += chars.substring(randomNumber, randomNumber + 1)
+              //aqui é onde puxa todos os carecteres de "chars" para variavel "password".
+            }
+
+            inputEl.value = password
+            //Acima, puxamos o input para ser a barra que a senha ira aparecer para copiar
+            //Foi selecionado o input e com isso, definiu a função acima.
+
+            calculateQuality()
+            calculateFontSize()
+        } 
+
+        function calculateQuality() {
+
+          
+
+          const percent = Math.round((passwordLenght / 64) * 25 + 
+          (upperCaseCheckEl.checked ? 15 : 0) + 
+          (numberCheckEl.checked ? 25: 0)+
+          (symbolCheckEl.checked ? 35 : 0))
+
+          securityIndicatorBarEl.style.width = `${percent}%`
+
+          if (percent > 69) {
+            //safe
+            securityIndicatorBarEl.classList.remove('critical')
+            securityIndicatorBarEl.classList.remove('warning')
+            securityIndicatorBarEl.classList.add('safe')
+          
+          } 
+          else if (percent > 50 ) {
+            //warning
+            securityIndicatorBarEl.classList.remove('critical')
+            securityIndicatorBarEl.classList.add('warning')
+            securityIndicatorBarEl.classList.remove('safe')
+          } 
+          else {
+            //Critical
+            securityIndicatorBarEl.classList.add('critical')
+            securityIndicatorBarEl.classList.remove('warning')
+            securityIndicatorBarEl.classList.remove('safe')
+          }
+
+          if (percent >= 100){
+            securityIndicatorBarEl.classList.add("completed")
+          }
+          else {
+            securityIndicatorBarEl.classList.remove("completed")
+          }
+        }
+
+        function calculateFontSize(){
+          if (passwordLenght > 45) { 
+            inputEl.classList.remove('font-sm')
+            inputEl.classList.remove('font-xs')
+            inputEl.classList.add('font-xxs')
+          }
+          else if (passwordLenght > 32) {
+            inputEl.classList.remove('font-sm')
+            inputEl.classList.add('font-xs')
+            inputEl.classList.remove('font-xxs')
+          }
+          else if (passwordLenght > 22){
+            inputEl.classList.add('font-sm')
+            inputEl.classList.remove('font-xs')
+            inputEl.classList.remove('font-xxs')
+          }
+          else {
+            inputEl.classList.remove('font-sm')
+            inputEl.classList.remove('font-xs')
+            inputEl.classList.remove('font-xxs')
+          }
+        }
+
+        function copy(){
+          navigator.clipboard.writeText(inputEl.value)
+        }
+        //Função oficial para que ação de copiar texto do navegador.
+        
+        const passwordlenghtEl = document.querySelector("#password-lenght")
+        passwordlenghtEl.addEventListener("input", function(){
+        passwordLenght = passwordlenghtEl.value
+        /*acima fizemos a ativação do slice, para quando deslizar, mudar a quantidade de caracteres
+        gerados.*/
+        document.querySelector("#password-lenght-text").innerText = passwordLenght 
+        //Esse comando faz com que seja alterado o paragrafo tamanho do programa, dentro da DIV "personlisar". 
+          
+        generatePassword()
+        /*Precisamos chamar a função novamente dentro do escopo para que o slice possa
+        funcionar sempre que deslizar ele, mudando a quantidade de caracteres gerados
+        dentro da barra ao qual aparece a senha gerada.
+        */
+        })
+
+        upperCaseCheckEl.addEventListener("click", generatePassword)
+        numberCheckEl.addEventListener("click", generatePassword)
+        symbolCheckEl.addEventListener("click", generatePassword)
+
+        
+        document.querySelector("#copy-1").addEventListener("click", copy)
+        document.querySelector("#copy-2").addEventListener("click", copy)
+        /*definido função do botão Copiar senha.
+        dentro do parentese, o "COPY" foi apenas chamada como uma função já pronta
+        que nesse caso, vai ser responsável para que quando aperte no botão "Copiar senha,
+        a senha seja copiada de fato.*/ 
+        document.querySelector("#renew")
+        .addEventListener("click", generatePassword)
+
+
+        
+        generatePassword()
+    
+      </script>
+</body>
+</html>
